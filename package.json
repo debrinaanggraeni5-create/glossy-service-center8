@@ -1,0 +1,24 @@
+{
+  "name": "glossy-service-center8",
+  "version": "1.0.0",
+  "description": "Premium service center booking and queue management website",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "service-center",
+    "booking",
+    "queue",
+    "socket.io",
+    "sqlite"
+  ],
+  "author": "Debrina",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.19.2",
+    "socket.io": "^4.8.1",
+    "sqlite3": "^5.1.7"
+  }
+}

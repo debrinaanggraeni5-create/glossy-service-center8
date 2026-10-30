@@ -1,0 +1,111 @@
+# Glossy Service Center
+
+Website service komputer dan jaringan profesional dengan desain premium glossy glassmorphism, sistem booking, antrean realtime, dan dashboard admin.
+
+## Fitur utama
+
+- Landing page premium dengan hero, layanan, keunggulan, dan booking form
+- Booking pelanggan dengan estimasi biaya otomatis
+- Antrean otomatis berbasis database SQLite
+- Real-time sync menggunakan Socket.IO
+- Dashboard admin dengan PIN login
+- CRUD layanan dan data antrean
+- Panggilan antrean berikutnya dengan notifikasi suara dan visual
+- Struk pembayaran dengan tombol cetak
+- Integrasi WhatsApp ke nomor admin: 089636876329
+- Responsive untuk desktop dan mobile
+
+## Teknologi
+
+- Node.js
+- Express
+- Socket.IO
+- SQLite3
+- HTML, CSS, JavaScript
+
+## Persyaratan
+
+- Node.js 18+ 
+- NPM
+
+## Instalasi
+
+1. Clone repository
+2. Masuk ke folder project
+3. Jalankan perintah:
+
+```bash
+npm install
+```
+
+4. Jalankan aplikasi:
+
+```bash
+npm start
+```
+
+5. Buka browser:
+
+- Website pelanggan: http://localhost:3000
+- Dashboard admin: http://localhost:3000/admin
+
+## Login Admin
+
+PIN default:
+
+```bash
+1234
+```
+
+Anda juga bisa mengubah PIN saat runtime dengan variabel environment:
+
+```bash
+ADMIN_PIN=5678 npm start
+```
+
+## Struktur project
+
+```bash
+.
+├── data/
+│   └── service_center.db
+├── public/
+│   ├── admin.html
+│   ├── admin.js
+│   ├── index.html
+│   ├── receipt.html
+│   ├── receipt.js
+│   ├── script.js
+│   └── styles.css
+├── .gitignore
+├── README.md
+├── package.json
+├── server.js
+└──
+```
+
+## Catatan
+
+- Database SQLite akan tersimpan di folder `data/service_center.db` dan tetap ada meskipun server restart.
+- Semua tombol, form, dan action admin sudah dibuat agar dapat digunakan secara nyata untuk demonstrasi tugas sekolah.
+- Website siap untuk deploy ke hosting Node.js seperti Render, Railway, atau VPS.
+
+## Deploy
+
+Untuk deploy di hosting Node.js:
+
+1. Upload semua file ke repository GitHub.
+2. Pastikan package.json sudah benar.
+3. Deploy ke layanan hosting Node.js.
+4. Set environment variable `PORT` bila diperlukan.
+5. Jalankan perintah `npm install` dan `npm start` di server hosting.
+
+## WhatsApp admin
+
+Nomor admin yang digunakan:
+
+```bash
+089636876329
+```
+
+Pesan akan otomatis berisi nama pelanggan, layanan, perangkat, nomor antrean, dan estimasi biaya.

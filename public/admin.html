@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Glossy Service Center</title>
+    <meta
+      name="description"
+      content="Glossy Service Center menyediakan service smartphone, laptop/PC, dan jaringan komputer dengan sistem booking dan antrean otomatis."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="topbar">
+        <nav class="navbar container">
+          <div class="brand">
+            <div class="brand-mark">G</div>
+            <div>
+              <strong>Glossy</strong>
+              <small>Service Center</small>
+            </div>
+          </div>
+
+          <div class="nav-links">
+            <a href="#home">Beranda</a>
+            <a href="#services">Layanan</a>
+            <a href="#booking">Booking</a>
+            <a href="#queue">Antrean</a>
+            <a href="/admin">Admin</a>
+          </div>
+
+          <a href="#booking" class="button button-primary">Booking Sekarang</a>
+        </nav>
+      </header>
+
+      <main>
+        <section id="home" class="hero">
+          <div class="hero-overlay"></div>
+          <div class="container hero-grid">
+            <div class="hero-copy">
+              <span class="eyebrow">Service Profesional & Premium</span>
+              <h1>Solusi teknis cepat untuk HP, laptop, PC, dan jaringan Anda.</h1>
+              <p>
+                Glossy Service Center membantu Anda menjaga perangkat tetap maksimal dengan proses
+                service cepat, transparan, dan teratur.
+              </p>
+
+              <div class="hero-actions">
+                <a href="#booking" class="button button-primary">Booking Sekarang</a>
+                <a href="#services" class="button button-secondary">Lihat Layanan</a>
+              </div>
+
+              <div class="stats-strip">
+                <div>
+                  <strong>2.4K+</strong>
+                  <span>Pelanggan</span>
+                </div>
+                <div>
+                  <strong>4.9/5</strong>
+                  <span>Rating</span>
+                </div>
+                <div>
+                  <strong>24 Jam</strong>
+                  <span>Proses</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="hero-panel glass-panel">
+              <div class="panel-header">
+                <span class="status-dot"></span>
+                <span>Realtime queue</span>
+              </div>
+
+              <div class="mini-queue">
+                <div>
+                  <small>Antrean saat ini</small>
+                  <strong id="currentQueueLabel">A001</strong>
+                </div>
+                <div>
+                  <small>Status</small>
+                  <strong class="status-badge waiting">Menunggu</strong>
+                </div>
+              </div>
+
+              <div class="service-badges">
+                <span>Smartphone</span>
+                <span>Laptop</span>
+                <span>Jaringan</span>
+              </div>
+
+              <ul class="service-points">
+                <li>Diagnosa perangkat profesional</li>
+                <li>Garansi hasil perbaikan</li>
+                <li>Proses cepat dan transparan</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <section id="services" class="services section-space">
+          <div class="container">
+            <div class="section-heading">
+              <span class="eyebrow">Jenis Layanan</span>
+              <h2>Solusi unggulan sesuai kebutuhan perangkat Anda</h2>
+            </div>
+
+            <div id="servicesCards" class="service-cards"></div>
+          </div>
+        </section>
+
+        <section class="advantages section-space">
+          <div class="container">
+            <div class="section-heading">
+              <span class="eyebrow">Kenapa memilih kami</span>
+              <h2>Keunggulan jasa service yang profesional</h2>
+            </div>
+
+            <div class="feature-grid">
+              <article class="glass-panel feature-card">
+                <div class="feature-icon">⚡</div>
+                <h3>Proses cepat</h3>
+                <p>Diagnosa dan pengecekan dilakukan dengan cepat untuk meminimalkan waktu tunggu.</p>
+              </article>
+
+              <article class="glass-panel feature-card">
+                <div class="feature-icon">🧠</div>
+                <h3>Teknisi ahli</h3>
+                <p>Tim teknisi berpengalaman menangani berbagai masalah perangkat dan jaringan.</p>
+              </article>
+
+              <article class="glass-panel feature-card">
+                <div class="feature-icon">🔒</div>
+                <h3>Transparan</h3>
+                <p>Estimasi biaya, status pengerjaan, dan struk pembayaran selalu jelas dan akurat.</p>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section id="booking" class="booking section-space">
+          <div class="container booking-grid">
+            <div class="booking-copy">
+              <span class="eyebrow">Sistem booking</span>
+              <h2>Daftarkan perangkat Anda dengan mudah</h2>
+              <p>
+                Isi data pelanggan dan kirim booking ke admin. Setelah itu, nomor antrean otomatis akan
+                muncul dan bisa dilihat secara realtime di bagian antrean.
+              </p>
+            </div>
+
+            <form id="bookingForm" class="glass-panel booking-form">
+              <div class="field-grid">
+                <label>
+                  <span>Nama pelanggan</span>
+                  <input type="text" name="name" placeholder="Masukkan nama Anda" required />
+                </label>
+
+                <label>
+                  <span>Nomor WhatsApp</span>
+                  <input type="tel" name="phone" placeholder="Contoh: 081234567890" required />
+                </label>
+
+                <label>
+                  <span>Jenis layanan</span>
+                  <select name="serviceId" id="serviceSelect" required></select>
+                </label>
+
+                <label>
+                  <span>Jenis perangkat</span>
+                  <input type="text" name="deviceType" placeholder="HP / Laptop / Router" required />
+                </label>
+              </div>
+
+              <label>
+                <span>Keluhan pelanggan</span>
+                <textarea name="complaint" rows="4" placeholder="Jelaskan kondisi perangkat Anda" required></textarea>
+              </label>
+
+              <div class="cost-box">
+                <span>Estimasi biaya</span>
+                <strong id="estimatedCost">Rp0</strong>
+              </div>
+
+              <button type="submit" class="button button-primary full-width">Booking</button>
+            </form>
+          </div>
+        </section>
+
+        <section id="queue" class="queue section-space">
+          <div class="container">
+            <div class="section-heading">
+              <span class="eyebrow">Antrean otomatis</span>
+              <h2>Monitor antrean secara realtime</h2>
+            </div>
+
+            <div id="queueList" class="queue-list"></div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <div id="toast" class="toast" aria-live="polite"></div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/script.js"></script>
+  </body>
+</html>

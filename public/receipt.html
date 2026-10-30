@@ -1,0 +1,452 @@
+const loginScreen = document.getElementById('loginScreen');
+const dashboard = document.getElementById('dashboard');
+const loginForm = document.getElementById('loginForm');
+const logoutBtn = document.getElementById('logoutBtn');
+const callNextBtn = document.getElementById('callNextBtn');
+const overviewCards = document.getElementById('overviewCards');
+const serviceTableWrap = document.getElementById('serviceTableWrap');
+const queueTableWrap = document.getElementById('queueTableWrap');
+const transactionTableWrap = document.getElementById('transactionTableWrap');
+const serviceForm = document.getElementById('serviceForm');
+const queueForm = document.getElementById('queueForm');
+const cancelServiceBtn = document.getElementById('cancelServiceBtn');
+const cancelBookingBtn = document.getElementById('cancelBookingBtn');
+const toast = document.getElementById('toast');
+
+const socket = io();
+
+let serviceCache = [];
+let bookingCache = [];
+
+function showToast(message) {
+  toast.textContent = message;
+  toast.classList.add('visible');
+
+  clearTimeout(showToast.timeoutId);
+  showToast.timeoutId = setTimeout(() => {
+    toast.classList.remove('visible');
+  }, 2500);
+}
+
+function currency(value) {
+  return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(Number(value || 0));
+}
+
+function statusLabel(status) {
+  const map = {
+    waiting: 'Menunggu',
+    called: 'Dipanggil',
+    in_progress: 'Sedang dikerjakan',
+    done: 'Selesai',
+  };
+  return map[status] || 'Menunggu';
+}
+
+async function fetchJSON(url, options = {}) {
+  const response = await fetch(url, {
+    headers: { 'Content-Type': 'application/json' },
+    ...options,
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.message || 'Operasi gagal.');
+  }
+
+  return data;
+}
+
+function setAuthenticated(value) {
+  loginScreen.classList.toggle('hidden', value);
+  dashboard.classList.toggle('hidden', !value);
+}
+
+async function loadServices() {
+  serviceCache = await fetchJSON('/api/services');
+  const select = document.getElementById('bookingService');
+
+  select.innerHTML = serviceCache
+    .map((service) => `<option value="${service.id}">${service.name} - ${currency(service.price)}</option>`)
+    .join('');
+
+  renderServiceTable();
+}
+
+async function loadBookings() {
+  bookingCache = await fetchJSON('/api/bookings');
+  renderOverview();
+  renderQueueTable();
+  renderTransactionTable();
+}
+
+function renderOverview() {
+  const total = bookingCache.length;
+  const waiting = bookingCache.filter((booking) => booking.status === 'waiting').length;
+  const called = bookingCache.filter((booking) => booking.status === 'called').length;
+  const done = bookingCache.filter((booking) => booking.status === 'done').length;
+
+  overviewCards.innerHTML = `
+    <article class="overview-card">
+      <h4>Total antrean</h4>
+      <strong>${total}</strong>
+    </article>
+    <article class="overview-card">
+      <h4>Menunggu</h4>
+      <strong>${waiting}</strong>
+    </article>
+    <article class="overview-card">
+      <h4>Dipanggil</h4>
+      <strong>${called}</strong>
+    </article>
+    <article class="overview-card">
+      <h4>Selesai</h4>
+      <strong>${done}</strong>
+    </article>
+  `;
+}
+
+function renderServiceTable() {
+  if (!serviceCache.length) {
+    serviceTableWrap.innerHTML = '<p>Belum ada layanan.</p>';
+    return;
+  }
+
+  serviceTableWrap.innerHTML = `
+    <table>
+      <thead>
+        <tr>
+          <th>Nama</th>
+          <th>Harga</th>
+          <th>Deskripsi</th>
+          <th>Aksi</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${serviceCache
+          .map(
+            (service) => `
+              <tr>
+                <td>${service.name}</td>
+                <td>${currency(service.price)}</td>
+                <td>${service.description || '-'}</td>
+                <td>
+                  <div class="action-group">
+                    <button class="action-btn primary" data-edit-service="${service.id}">Edit</button>
+                    <button class="action-btn danger" data-delete-service="${service.id}">Hapus</button>
+                  </div>
+                </td>
+              </tr>
+            `
+          )
+          .join('')}
+      </tbody>
+    </table>
+  `;
+}
+
+function renderQueueTable() {
+  if (!bookingCache.length) {
+    queueTableWrap.innerHTML = '<p>Belum ada data antrean.</p>';
+    return;
+  }
+
+  queueTableWrap.innerHTML = `
+    <table>
+      <thead>
+        <tr>
+          <th>Antrean</th>
+          <th>Nama</th>
+          <th>Layanan</th>
+          <th>Perangkat</th>
+          <th>Status</th>
+          <th>Aksi</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${bookingCache
+          .map(
+            (booking) => `
+              <tr>
+                <td>${booking.queue_number}</td>
+                <td>${booking.name}</td>
+                <td>${booking.service_name || '-'}</td>
+                <td>${booking.device_type || '-'}</td>
+                <td>
+                  <select class="select-status" data-update-status="${booking.id}">
+                    <option value="waiting" ${booking.status === 'waiting' ? 'selected' : ''}>Menunggu</option>
+                    <option value="called" ${booking.status === 'called' ? 'selected' : ''}>Dipanggil</option>
+                    <option value="in_progress" ${booking.status === 'in_progress' ? 'selected' : ''}>Dikerjakan</option>
+                    <option value="done" ${booking.status === 'done' ? 'selected' : ''}>Selesai</option>
+                  </select>
+                </td>
+                <td>
+                  <div class="action-group">
+                    <button class="action-btn primary" data-edit-booking="${booking.id}">Edit</button>
+                    <button class="action-btn danger" data-delete-booking="${booking.id}">Hapus</button>
+                    <a class="action-btn" href="/receipt?id=${booking.id}" target="_blank">Struk</a>
+                  </div>
+                </td>
+              </tr>
+            `
+          )
+          .join('')}
+      </tbody>
+    </table>
+  `;
+
+  document.querySelectorAll('[data-update-status]').forEach((select) => {
+    select.addEventListener('change', async (event) => {
+      const id = event.target.getAttribute('data-update-status');
+      const status = event.target.value;
+
+      try {
+        await fetchJSON(`/api/bookings/${id}/status`, {
+          method: 'POST',
+          body: JSON.stringify({ status }),
+        });
+        showToast('Status antrean diperbarui.');
+        await loadBookings();
+      } catch (error) {
+        showToast(error.message || 'Status gagal diperbarui.');
+      }
+    });
+  });
+}
+
+function renderTransactionTable() {
+  if (!bookingCache.length) {
+    transactionTableWrap.innerHTML = '<p>Belum ada transaksi.</p>';
+    return;
+  }
+
+  transactionTableWrap.innerHTML = `
+    <table>
+      <thead>
+        <tr>
+          <th>Nama</th>
+          <th>Antrean</th>
+          <th>Layanan</th>
+          <th>Biaya</th>
+          <th>Tanggal</th>
+          <th>Aksi</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${bookingCache
+          .map(
+            (booking) => `
+              <tr>
+                <td>${booking.name}</td>
+                <td>${booking.queue_number}</td>
+                <td>${booking.service_name || '-'}</td>
+                <td>${currency(booking.estimated_cost || booking.service_price || 0)}</td>
+                <td>${new Date(booking.created_at).toLocaleString('id-ID')}</td>
+                <td>
+                  <a href="/receipt?id=${booking.id}" class="action-btn primary" target="_blank">Cetak</a>
+                </td>
+              </tr>
+            `
+          )
+          .join('')}
+      </tbody>
+    </table>
+  `;
+}
+
+async function loadData() {
+  await loadServices();
+  await loadBookings();
+}
+
+loginForm.addEventListener('submit', async (event) => {
+  event.preventDefault();
+  const pin = document.getElementById('adminPin').value.trim();
+
+  try {
+    await fetchJSON('/api/admin/login', {
+      method: 'POST',
+      body: JSON.stringify({ pin }),
+    });
+    setAuthenticated(true);
+    await loadData();
+  } catch (error) {
+    showToast(error.message || 'PIN tidak valid.');
+  }
+});
+
+logoutBtn.addEventListener('click', () => {
+  document.getElementById('adminPin').value = '';
+  setAuthenticated(false);
+});
+
+callNextBtn.addEventListener('click', async () => {
+  try {
+    const result = await fetchJSON('/api/bookings/call-next', { method: 'POST' });
+    showToast(result.message || 'Antrean berikutnya dipanggil.');
+    await loadBookings();
+  } catch (error) {
+    showToast(error.message || 'Tidak ada antrean yang bisa dipanggil.');
+  }
+});
+
+serviceForm.addEventListener('submit', async (event) => {
+  event.preventDefault();
+
+  const id = document.getElementById('serviceId').value;
+  const payload = {
+    name: document.getElementById('serviceName').value.trim(),
+    price: Number(document.getElementById('servicePrice').value),
+    description: document.getElementById('serviceDescription').value.trim(),
+  };
+
+  try {
+    if (id) {
+      await fetchJSON(`/api/services/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(payload),
+      });
+      showToast('Layanan berhasil diperbarui.');
+    } else {
+      await fetchJSON('/api/services', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      });
+      showToast('Layanan berhasil ditambahkan.');
+    }
+
+    serviceForm.reset();
+    document.getElementById('serviceId').value = '';
+    await loadData();
+  } catch (error) {
+    showToast(error.message || 'Gagal menyimpan layanan.');
+  }
+});
+
+cancelServiceBtn.addEventListener('click', () => {
+  serviceForm.reset();
+  document.getElementById('serviceId').value = '';
+});
+
+queueForm.addEventListener('submit', async (event) => {
+  event.preventDefault();
+
+  const id = document.getElementById('bookingId').value;
+  const payload = {
+    name: document.getElementById('bookingName').value.trim(),
+    phone: document.getElementById('bookingPhone').value.trim(),
+    serviceId: Number(document.getElementById('bookingService').value),
+    deviceType: document.getElementById('bookingDevice').value.trim(),
+    complaint: document.getElementById('bookingComplaint').value.trim(),
+    status: 'waiting',
+  };
+
+  try {
+    if (id) {
+      await fetchJSON(`/api/bookings/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(payload),
+      });
+      showToast('Data pelanggan berhasil diubah.');
+    } else {
+      await fetchJSON('/api/bookings', {
+        method: 'POST',
+        body: JSON.stringify({
+          ...payload,
+          serviceId: payload.serviceId,
+        }),
+      });
+      showToast('Pelanggan berhasil ditambahkan.');
+    }
+
+    queueForm.reset();
+    document.getElementById('bookingId').value = '';
+    await loadBookings();
+  } catch (error) {
+    showToast(error.message || 'Gagal menyimpan pelanggan.');
+  }
+});
+
+cancelBookingBtn.addEventListener('click', () => {
+  queueForm.reset();
+  document.getElementById('bookingId').value = '';
+});
+
+serviceTableWrap.addEventListener('click', async (event) => {
+  const button = event.target.closest('[data-edit-service]');
+  if (button) {
+    const id = Number(button.getAttribute('data-edit-service'));
+    const service = serviceCache.find((item) => item.id === id);
+    if (!service) return;
+
+    document.getElementById('serviceId').value = service.id;
+    document.getElementById('serviceName').value = service.name;
+    document.getElementById('servicePrice').value = service.price;
+    document.getElementById('serviceDescription').value = service.description || '';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    return;
+  }
+
+  const deleteBtn = event.target.closest('[data-delete-service]');
+  if (deleteBtn) {
+    const id = deleteBtn.getAttribute('data-delete-service');
+    try {
+      await fetchJSON(`/api/services/${id}`, { method: 'DELETE' });
+      showToast('Layanan berhasil dihapus.');
+      await loadData();
+    } catch (error) {
+      showToast(error.message || 'Gagal menghapus layanan.');
+    }
+  }
+});
+
+queueTableWrap.addEventListener('click', async (event) => {
+  const editBtn = event.target.closest('[data-edit-booking]');
+  if (editBtn) {
+    const id = Number(editBtn.getAttribute('data-edit-booking'));
+    const booking = bookingCache.find((item) => item.id === id);
+    if (!booking) return;
+
+    document.getElementById('bookingId').value = booking.id;
+    document.getElementById('bookingName').value = booking.name;
+    document.getElementById('bookingPhone').value = booking.phone || '';
+    document.getElementById('bookingService').value = String(booking.service_id || serviceCache[0]?.id || '');
+    document.getElementById('bookingDevice').value = booking.device_type || '';
+    document.getElementById('bookingComplaint').value = booking.complaint || '';
+    document.getElementById('bookingService').scrollIntoView({ behavior: 'smooth' });
+    return;
+  }
+
+  const deleteBtn = event.target.closest('[data-delete-booking]');
+  if (deleteBtn) {
+    const id = deleteBtn.getAttribute('data-delete-booking');
+    try {
+      await fetchJSON(`/api/bookings/${id}`, { method: 'DELETE' });
+      showToast('Antrean berhasil dihapus.');
+      await loadBookings();
+    } catch (error) {
+      showToast(error.message || 'Gagal menghapus antrean.');
+    }
+  }
+});
+
+socket.on('queue:update', (payload) => {
+  bookingCache = payload.bookings || [];
+  renderOverview();
+  renderQueueTable();
+  renderTransactionTable();
+});
+
+socket.on('queue:call', (payload) => {
+  showToast(payload.message || 'Antrean dipanggil.');
+
+  if ('speechSynthesis' in window) {
+    const utterance = new SpeechSynthesisUtterance(payload.message || 'Mohon perhatian.');
+    utterance.lang = 'id-ID';
+    utterance.rate = 0.9;
+    speechSynthesis.cancel();
+    speechSynthesis.speak(utterance);
+  }
+});
+
+setAuthenticated(false);

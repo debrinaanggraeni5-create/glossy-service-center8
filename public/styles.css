@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Glossy Service Center</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body class="admin-body">
+    <div class="admin-shell">
+      <aside class="admin-sidebar glass-panel">
+        <div class="brand admin-brand">
+          <div class="brand-mark">G</div>
+          <div>
+            <strong>Glossy</strong>
+            <small>Admin Panel</small>
+          </div>
+        </div>
+
+        <nav class="admin-nav">
+          <button class="nav-action is-active" data-section="overview">Overview</button>
+          <button class="nav-action" data-section="services">Layanan</button>
+          <button class="nav-action" data-section="queue">Antrean</button>
+          <button class="nav-action" data-section="transactions">Transaksi</button>
+        </nav>
+
+        <button id="logoutBtn" class="button button-secondary full-width">Logout</button>
+      </aside>
+
+      <main class="admin-content">
+        <section id="loginScreen" class="auth-screen">
+          <div class="glass-panel auth-card">
+            <span class="eyebrow">Akses admin</span>
+            <h2>Masukkan PIN</h2>
+            <form id="loginForm">
+              <input type="password" id="adminPin" placeholder="PIN admin" maxlength="8" required />
+              <button type="submit" class="button button-primary full-width">Login</button>
+            </form>
+          </div>
+        </section>
+
+        <section id="dashboard" class="dashboard hidden">
+          <div class="dashboard-header">
+            <div>
+              <span class="eyebrow">Control center</span>
+              <h2>Dashboard Admin</h2>
+            </div>
+            <button id="callNextBtn" class="button button-primary">Panggil antrean berikutnya</button>
+          </div>
+
+          <div class="overview-cards" id="overviewCards"></div>
+
+          <div class="admin-grid">
+            <section class="glass-panel admin-section" data-panel="services">
+              <div class="section-top">
+                <h3>Kelola layanan</h3>
+                <button class="button button-primary small" id="addServiceBtn">Tambah layanan</button>
+              </div>
+
+              <form id="serviceForm" class="admin-form">
+                <input type="hidden" id="serviceId" />
+                <div class="field-grid compact">
+                  <label>
+                    <span>Nama layanan</span>
+                    <input type="text" id="serviceName" placeholder="Contoh: Service Laptop" required />
+                  </label>
+                  <label>
+                    <span>Harga</span>
+                    <input type="number" id="servicePrice" placeholder="50000" required />
+                  </label>
+                </div>
+                <label>
+                  <span>Deskripsi</span>
+                  <textarea id="serviceDescription" rows="3" placeholder="Deskripsi layanan"></textarea>
+                </label>
+                <div class="button-row">
+                  <button type="submit" class="button button-primary">Simpan layanan</button>
+                  <button type="button" class="button button-secondary" id="cancelServiceBtn">Batal</button>
+                </div>
+              </form>
+
+              <div id="serviceTableWrap" class="table-wrap"></div>
+            </section>
+
+            <section class="glass-panel admin-section" data-panel="queue">
+              <div class="section-top">
+                <h3>Data antrean</h3>
+              </div>
+
+              <form id="queueForm" class="admin-form">
+                <input type="hidden" id="bookingId" />
+                <div class="field-grid compact">
+                  <label>
+                    <span>Nama</span>
+                    <input type="text" id="bookingName" placeholder="Nama pelanggan" required />
+                  </label>
+                  <label>
+                    <span>WhatsApp</span>
+                    <input type="tel" id="bookingPhone" placeholder="081234567890" required />
+                  </label>
+                </div>
+
+                <div class="field-grid compact">
+                  <label>
+                    <span>Layanan</span>
+                    <select id="bookingService"></select>
+                  </label>
+                  <label>
+                    <span>Perangkat</span>
+                    <input type="text" id="bookingDevice" placeholder="HP / Laptop / Router" required />
+                  </label>
+                </div>
+
+                <label>
+                  <span>Keluhan</span>
+                  <textarea id="bookingComplaint" rows="3" placeholder="Keluhan pelanggan"></textarea>
+                </label>
+
+                <div class="button-row">
+                  <button type="submit" class="button button-primary">Simpan pelanggan</button>
+                  <button type="button" class="button button-secondary" id="cancelBookingBtn">Batal</button>
+                </div>
+              </form>
+
+              <div id="queueTableWrap" class="table-wrap"></div>
+            </section>
+
+            <section class="glass-panel admin-section" data-panel="transactions">
+              <div class="section-top">
+                <h3>Semua transaksi</h3>
+              </div>
+              <div id="transactionTableWrap" class="table-wrap"></div>
+            </section>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <div id="toast" class="toast" aria-live="polite"></div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/admin.js"></script>
+  </body>
+</html>
